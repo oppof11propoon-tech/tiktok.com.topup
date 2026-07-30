@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Coin Topup (Simulated)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        .username-box, .custom-coin-box {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+        .username-box span, .custom-coin-box span {
+            color: #fe2c55;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+        .username-box input, .custom-coin-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            outline: none;
+            font-size: 15px;
+        }
+        .user-preview {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background-color: #252525;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s;
+        }
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: #fe2c55;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .user-info .display-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .user-info .coin-balance {
+            font-size: 12px;
+            color: #ffb703;
+        }
+        .packages {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .pkg-btn {
+            background-color: #2a2a2a;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 10px;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .pkg-btn:hover, .pkg-btn.active {
+            border-color: #fe2c55;
+            background-color: #2e262a;
+        }
+        .coins {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .price {
+            font-size: 12px;
+            color: #888;
+        }
+        .price-summary {
+            font-size: 14px;
+            color: #aaa;
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .price-summary span {
+            color: #25d366;
+            font-weight: bold;
+        }
+        .pay-btn {
+            width: 100%;
+            background-color: #fe2c55;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .pay-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background-color: #1e1e1e;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .wait-notice {
+            background-color: #2a2a1a;
+            border: 1px solid #ffb703;
+            color: #ffb703;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 12px;
+            margin-bottom: 20px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="title">เติมเหรียญ TikTok</div>
+
+    <!-- กรอกชื่อผู้ใช้ -->
+    <div class="input-group">
+        <label>ชื่อผู้ใช้งาน TikTok</label>
+        <div class="username-box">
+            <span>@</span>
+            <input type="text" id="usernameInput" placeholder="กรอกชื่อผู้ใช้..." oninput="updateProfile()">
+        </div>
+    </div>
+
+    <!-- โปรไฟล์จำลอง -->
+    <div class="user-preview" id="userPreview">
+        <div class="avatar" id="userAvatar">U</div>
+        <div class="user-info">
+            <div class="display-name" id="displayName">@username</div>
+            <div class="coin-balance">🟡 เหรียญสะสม: <span id="currentCoins">0</span></div>
+        </div>
+    </div>
+
+    <!-- เลือกแพ็กเกจ -->
+    <div class="input-group">
+        <label>เลือกหรือระบุจำนวนเหรียญ (1 - 999,998)</label>
+        <div class="packages">
+            <div class="pkg-btn" onclick="selectPkg(this, 70, 35)">
+                <div class="coins">🟡 70</div>
+                <div class="price">฿ 35</div>
+            </div>
+            <div class="pkg-btn" onclick="selectPkg(this, 350, 175)">
+                <div class="coins">🟡 350</div>
+                <div class="price">฿ 175</div>
+            </div>
+            <div class="pkg-btn" onclick="selectPkg(this, 700, 350)">
+                <div class="coins">🟡 700</div>
+                <div class="price">฿ 350</div>
+            </div>
+            <div class="pkg-btn" onclick="selectPkg(this, 1400, 700)">
+                <div class="coins">🟡 1,400</div>
+                <div class="price">฿ 700</div>
+            </div>
+        </div>
+
+        <!-- ช่องกรอกจำนวนเอง -->
+        <div class="custom-coin-box">
+            <span>🟡</span>
+            <input type="number" id="customCoinInput" placeholder="หรือกรอกจำนวนเอง..." min="1" max="999998" oninput="onCustomCoinInput()">
+        </div>
+    </div>
+
+    <!-- สรุปราคา -->
+    <div class="price-summary">
+        ราคาทั้งหมด: <span id="totalPrice">฿ 0</span>
+    </div>
+
+    <button class="pay-btn" id="payBtn" onclick="submitTopup()">ยืนยันการเติมเงิน</button>
+</div>
+
+<!-- Modal แจ้งเตือนสำเร็จ -->
+<div class="modal" id="successModal">
+    <div class="modal-content">
+        <div class="success-icon">✅</div>
+        <h3 style="margin: 0 0 10px 0;">ทำรายการสำเร็จ!</h3>
+        <p style="font-size: 14px; color: #aaa; margin-bottom: 5px;" id="modalText"></p>
+        
+        <!-- ข้อความแจ้งเตือนรอ 1-2 วัน -->
+        <div class="wait-notice">
+            ⏳ กรุณารอ 1 - 2 วัน ระบบกำลังดำเนินการโอนเหรียญเข้าบัญชีของคุณ
+        </div>
+
+        <button class="pay-btn" onclick="closeModal()">ตกลง</button>
+    </div>
+</div>
+
+<script>
+    let selectedAmount = 0;
+    let totalPrice = 0;
+    let totalCoins = 0;
+
+    function updateProfile() {
+        const input = document.getElementById('usernameInput').value.trim();
+        const preview = document.getElementById('userPreview');
+        const displayName = document.getElementById('displayName');
+        const avatar = document.getElementById('userAvatar');
+
+        if (input.length > 0) {
+            preview.style.display = 'flex';
+            displayName.innerText = '@' + input;
+            avatar.innerText = input.charAt(0).toUpperCase();
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    function selectPkg(element, amount, price) {
+        selectedAmount = amount;
+        totalPrice = price;
+        
+        document.getElementById('customCoinInput').value = '';
+        document.querySelectorAll('.pkg-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+
+        updatePriceDisplay();
+    }
+
+    function onCustomCoinInput() {
+        const input = document.getElementById('customCoinInput');
+        let val = parseInt(input.value) || 0;
+
+        if (val > 999998) {
+            val = 999998;
+            input.value = 999998;
+        }
+
+        selectedAmount = val;
+        totalPrice = Math.round(val * 0.5);
+
+        document.querySelectorAll('.pkg-btn').forEach(btn => btn.classList.remove('active'));
+
+        updatePriceDisplay();
+    }
+
+    function updatePriceDisplay() {
+        document.getElementById('totalPrice').innerText = '฿ ' + totalPrice.toLocaleString();
+    }
+
+    function submitTopup() {
+        const username = document.getElementById('usernameInput').value.trim();
+
+        if (!username) {
+            alert('กรุณากรอกชื่อผู้ใช้งาน TikTok ก่อนครับ');
+            return;
+        }
+        if (selectedAmount <= 0) {
+            alert('กรุณาเลือกหรือใส่จำนวนเหรียญที่ต้องการเติม (1 - 999,998)');
+            return;
+        }
+
+        const btn = document.getElementById('payBtn');
+        btn.innerText = 'กำลังดำเนินการ...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            totalCoins += selectedAmount;
+            document.getElementById('currentCoins').innerText = totalCoins.toLocaleString();
+            
+            document.getElementById('modalText').innerText = `ส่งคำขอเติมเหรียญจำนวน ${selectedAmount.toLocaleString()} เหรียญ ไปยัง @${username} เรียบร้อยแล้ว`;
+            document.getElementById('successModal').style.display = 'flex';
+
+            btn.innerText = 'ยืนยันการเติมเงิน';
+            btn.disabled = false;
+        }, 1500);
+    }
+
+    function closeModal() {
+        document.getElementById('successModal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
+ใบ
