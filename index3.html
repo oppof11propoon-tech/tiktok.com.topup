@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Roblox - เติม Robux</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #111;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .nav-logo {
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-logo span {
+            background: #000;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .nav-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .user-balance-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f1f2;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .btn-send {
+            background: #00b06f;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        /* Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #007aff, #0051a8);
+            color: white;
+            padding: 24px 16px;
+            margin: 16px;
+            border-radius: 16px;
+        }
+        .hero-banner h1 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .hero-banner p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        /* Section Title */
+        .section-header {
+            padding: 0 16px;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        /* Package List style Roblox */
+        .robux-list {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .robux-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border: 1.5px solid #e9ecef;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .robux-item:active {
+            background: #e2e6ea;
+        }
+        .robux-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .robux-icon {
+            width: 28px;
+            height: 28px;
+            background: #00b06f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+        .robux-price {
+            background: #111;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        /* Bottom Sticky Button */
+        .bottom-action {
+            margin-top: auto;
+            padding: 16px;
+            background: #fff;
+            border-top: 1px solid #e5e5e5;
+            position: sticky;
+            bottom: 0;
+        }
+        .main-btn {
+            width: 100%;
+            background: #00b06f;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+        }
+        .main-btn:active {
+            opacity: 0.85;
+        }
+        /* Modal Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 999;
+        }
+        .modal-card {
+            background: #fff;
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 14px;
+        }
+        .input-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            font-weight: 600;
+        }
+        .select-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            background: #fff;
+            font-weight: 600;
+        }
+        .custom-amount-box {
+            display: none;
+            margin-top: 8px;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .btn-cancel {
+            background: #e5e5e5;
+            color: #333;
+            border: none;
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-confirm {
+            background: #00b06f;
+            color: #fff;
+            border: none;
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="nav-logo">
+            <span>R</span> Roblox
+        </div>
+        <div class="nav-right">
+            <div class="user-balance-badge">
+                🪙 <span id="displayBalance">790,000</span>
+            </div>
+            <button class="btn-send" onclick="openModal()">ส่ง</button>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <h1>รับ Robux เพิ่มขึ้นสูงสุดถึง 25%</h1>
+        <p>เติมด่วน ปลอดภัย ได้รับ Robux เข้าไอดีจริงแน่นอน</p>
+    </div>
+
+    <div class="section-header">เลือกแพ็กเกจ Robux</div>
+
+    <!-- รายการแพ็กเกจ -->
+    <div class="robux-list">
+        <div class="robux-item" onclick="selectPackage(20)">
+            <div class="robux-left">
+                <div class="robux-icon">R$</div>
+                <div>20 Robux</div>
+            </div>
+            <div class="robux-price">฿19.00</div>
+        </div>
+
+        <div class="robux-item" onclick="selectPackage(80)">
+            <div class="robux-left">
+                <div class="robux-icon">R$</div>
+                <div>80 Robux</div>
+            </div>
+            <div class="robux-price">฿69.00</div>
+        </div>
+
+        <div class="robux-item" onclick="selectPackage(100)">
+            <div class="robux-left">
+                <div class="robux-icon">R$</div>
+                <div>100 Robux</div>
+            </div>
+            <div class="robux-price">฿85.00</div>
+        </div>
+
+        <div class="robux-item" onclick="selectPackage('custom')">
+            <div class="robux-left">
+                <div class="robux-icon" style="background:#ff9500;">⚙️</div>
+                <div>กำหนดเอง</div>
+            </div>
+            <div class="robux-price">เลือกจำนวน</div>
+        </div>
+    </div>
+
+    <!-- ปุ่มด้านล่างสุด -->
+    <div class="bottom-action">
+        <button class="main-btn" onclick="openModal()">🚀 ส่ง Robux ทันที</button>
+    </div>
+</div>
+
+<!-- Modal หน้าต่างกรอก User และเลือกแพ็กเกจ -->
+<div class="modal" id="orderModal">
+    <div class="modal-card">
+        <div class="modal-title">ส่ง Robux เข้าไอดี</div>
+        
+        <div class="input-group">
+            <label>พิมพ์ชื่อ User ที่จะส่ง</label>
+            <input type="text" id="usernameInput" class="input-field" placeholder="กรอกชื่อผู้ใช้ของคุณ...">
+        </div>
+
+        <div class="input-group">
+            <label>เลือกแพ็กเกจ Robux</label>
+            <select id="packageSelect" class="select-field" onchange="checkCustomPkg()">
+                <option value="20">20 Robux</option>
+                <option value="80">80 Robux</option>
+                <option value="100">100 Robux</option>
+                <option value="custom">กำหนดเอง</option>
+            </select>
+        </div>
+
+        <div class="input-group custom-amount-box" id="customBox">
+            <label>ระบุจำนวน Robux ที่ต้องการ</label>
+            <input type="number" id="customInput" class="input-field" placeholder="เช่น 500">
+        </div>
+
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+            <button class="btn-confirm" onclick="submitOrder()">ยืนยันส่ง</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('orderModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('orderModal').style.display = 'none';
+    }
+
+    function selectPackage(pkg) {
+        openModal();
+        const select = document.getElementById('packageSelect');
+        if (pkg === 'custom') {
+            select.value = 'custom';
+        } else {
+            select.value = pkg;
+        }
+        checkCustomPkg();
+    }
+
+    function checkCustomPkg() {
+        const select = document.getElementById('packageSelect').value;
+        const customBox = document.getElementById('customBox');
+        if (select === 'custom') {
+            customBox.style.display = 'block';
+        } else {
+            customBox.style.display = 'none';
+        }
+    }
+
+    function submitOrder() {
+        const username = document.getElementById('usernameInput').value.trim();
+        const selectVal = document.getElementById('packageSelect').value;
+        let amount = selectVal;
+
+        if (selectVal === 'custom') {
+            amount = document.getElementById('customInput').value.trim();
+        }
+
+        if (!username) {
+            alert('กรุณาพิมพ์ชื่อ User ที่จะส่ง');
+            return;
+        }
+
+        if (selectVal === 'custom' && (!amount || amount <= 0)) {
+            alert('กรุณาระบุจำนวน Robux ที่ต้องการกำหนดเอง');
+            return;
+        }
+
+        alert(`ส่งสำเร็จ!\nUser: ${username}\nจำนวน: ${amount} Robux`);
+        closeModal();
+    }
+</script>
+
+</body>
+</html>
