@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เว็บสุ่มรูปภาพ (มีระบบหลังบ้าน)</title>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 480px;
+            text-align: center;
+            position: relative;
+        }
+        h2 { margin-top: 0; color: #38bdf8; }
+        button {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.2s;
+            font-family: 'Sarabun', sans-serif;
+        }
+        button:hover { background: #0ea5e9; }
+        .btn-secondary { background: #475569; color: white; margin-top: 5px; }
+        .btn-secondary:hover { background: #334155; }
+        
+        #resultBox {
+            margin: 20px 0;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: #0f172a;
+            border-radius: 12px;
+            border: 2px dashed #334155;
+            position: relative;
+            overflow: hidden;
+        }
+        #resultImg {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 8px;
+            display: none;
+            object-fit: contain;
+        }
+        #resultText {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: left;
+            border: 1px solid #475569;
+        }
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            color: #94a3b8;
+        }
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+        }
+        .admin-link {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .admin-link:hover { color: #38bdf8; }
+        .thumb-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        .thumb-item {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+        .thumb-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .del-img {
+            position: absolute;
+            top: -5px; right: -5px;
+            background: red; color: white;
+            border-radius: 50%; width: 18px; height: 18px;
+            font-size: 10px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🎰 สุ่มภาพนำโชค</h2>
+        
+        <div id="resultBox">
+            <span id="resultText">กดปุ่มเพื่อเริ่มสุ่ม!</span>
+            <img id="resultImg" src="" alt="Result">
+        </div>
+        
+        <button onclick="spin()">สุ่มภาพเลย!</button>
+        
+        <div class="admin-link" onclick="openAdminLogin()">⚙️ เข้าสู่ระบบหลังบ้าน (Admin)</div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="width: 320px;">
+            <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+            <h3>🔐 เข้าสู่หลังบ้าน</h3>
+            <p style="font-size: 12px; color: #94a3b8; word-break: break-all;">รหัสผ่านถูกตั้งค่าเรียบร้อยแล้ว</p>
+            <input type="password" id="adminPassword" placeholder="ใส่รหัสผ่าน">
+            <button onclick="checkPassword()">เข้าสู่ระบบ</button>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('adminModal')">&times;</span>
+            <h3>🛠️ แผงควบคุมหลังบ้าน</h3>
+            
+            <label style="font-size: 14px; color: #38bdf8; font-weight: bold;">1. ล็อกผลลัพธ์ล่วงหน้า (รอบถัดไป)</label>
+            <select id="forcedSelect" onchange="saveSettings()">
+                <option value="">-- ไม่ล็อก (สุ่มตามปกติ) --</option>
+            </select>
+
+            <hr style="border-color: #334155; margin: 15px 0;">
+
+            <label style="font-size: 14px; color: #38bdf8; font-weight: bold;">2. เพิ่มรูปภาพใหม่</label>
+            <input type="file" id="imageUpload" accept="image/*" multiple onchange="uploadImages(event)" style="margin: 8px 0;">
+            
+            <label style="font-size: 13px; color: #94a3b8;">รูปภาพที่มีทั้งหมดในระบบ:</label>
+            <div class="thumb-list" id="adminThumbList"></div>
+
+            <button class="btn-secondary" onclick="closeModal('adminModal')">ปิดหลังบ้าน</button>
+        </div>
+    </div>
+
+    <script>
+        let images = JSON.parse(localStorage.getItem('slot_images')) || [];
+        let forcedIndex = localStorage.getItem('slot_forced') || "";
+
+        window.onload = function() {
+            updateAdminUI();
+        };
+
+        function openAdminLogin() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function checkPassword() {
+            const pass = document.getElementById('adminPassword').value;
+            if (pass === 'ihufhgjydthdjtdthdutftditfitfjydyfutdiutydgfdyifhfhtuoftdufyjjtdyjsyodyifoyufutfyfukzigtufipfgkxhfgitfukxykffhgggiyodhoxhkfgiftkkgdgjggigipihodigfuyguifoupfohfyduodiydyiguygkhgifipzgdditgyifipsuygurfkyilgulgiyg445546') {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminModal').style.display = 'flex';
+                updateAdminUI();
+            } else {
+                alert('รหัสผ่านไม่ถูกต้อง!');
+            }
+        }
+
+        function uploadImages(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    images.push(e.target.result);
+                    localStorage.setItem('slot_images', JSON.stringify(images));
+                    updateAdminUI();
+                }
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        function deleteImage(index) {
+            images.splice(index, 1);
+            if (forcedIndex == index) {
+                forcedIndex = "";
+            } else if (forcedIndex > index) {
+                forcedIndex = parseInt(forcedIndex) - 1;
+            }
+            localStorage.setItem('slot_images', JSON.stringify(images));
+            localStorage.setItem('slot_forced', forcedIndex);
+            updateAdminUI();
+        }
+
+        function saveSettings() {
+            forcedIndex = document.getElementById('forcedSelect').value;
+            localStorage.setItem('slot_forced', forcedIndex);
+        }
+
+        function updateAdminUI() {
+            const thumbList = document.getElementById('adminThumbList');
+            const forcedSelect = document.getElementById('forcedSelect');
+
+            thumbList.innerHTML = '';
+            forcedSelect.innerHTML = '<option value="">-- ไม่ล็อก (สุ่มตามปกติ) --</option>';
+
+            if (images.length === 0) {
+                thumbList.innerHTML = '<span style="font-size: 12px; color: #64748b;">ยังไม่มีรูปภาพในระบบ</span>';
+                return;
+            }
+
+            images.forEach((imgSrc, index) => {
+                const item = document.createElement('div');
+                item.className = 'thumb-item';
+                item.innerHTML = `<img src="${imgSrc}"><div class="del-img" onclick="deleteImage(${index})">✕</div>`;
+                thumbList.appendChild(item);
+
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = `รูปภาพที่ ${index + 1}`;
+                if (forcedIndex == index) option.selected = true;
+                forcedSelect.appendChild(option);
+            });
+        }
+
+        function spin() {
+            const resultImg = document.getElementById('resultImg');
+            const resultText = document.getElementById('resultText');
+
+            if (images.length === 0) {
+                alert('กรุณาเพิ่มรูปภาพในระบบหลังบ้านก่อนทำการสุ่ม');
+                return;
+            }
+
+            resultImg.style.display = 'none';
+            resultText.style.display = 'block';
+            resultText.innerText = 'กำลังสุ่ม...';
+
+            let counter = 0;
+            const interval = setInterval(() => {
+                const rand = Math.floor(Math.random() * images.length);
+                resultImg.src = images[rand];
+                resultImg.style.display = 'block';
+                resultText.style.display = 'none';
+            }, 80);
+
+            setTimeout(() => {
+                clearInterval(interval);
+
+                let chosenIndex;
+                if (forcedIndex !== "" && forcedIndex < images.length) {
+                    chosenIndex = parseInt(forcedIndex);
+                } else {
+                    chosenIndex = Math.floor(Math.random() * images.length);
+                }
+
+                resultImg.src = images[chosenIndex];
+                resultImg.style.display = 'block';
+                resultText.style.display = 'none';
+            }, 800);
+        }
+    </script>
+
+</body>
+</html>
